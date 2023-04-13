@@ -289,3 +289,61 @@ Proof.
     reflexivity.
 Qed.
 
+(** Proof by case analysis *)
+Theorem plus_1_neq_0_first_try : forall n : nat,
+    (n + 1) =? 0 = false.
+Proof.
+    intros n.
+    simpl.
+Abort.
+
+Theorem plus_1_neq_0 : forall n : nat,
+    (n + 1 =? 0) = false.
+Proof.
+    intros n. destruct n as [ | n'] eqn:E.
+        - simpl. reflexivity.
+        - simpl. reflexivity.
+Qed.
+
+Theorem negb_involutive : forall b : bool,
+    negb (negb b) = b.
+Proof.
+    intros b. destruct b eqn:B.
+        - simpl. reflexivity.
+        - simpl. reflexivity.
+Qed.
+
+Theorem andb_commutative : forall b1 b2 : bool,
+    b1 && b2 = b2 && b1.
+Proof.
+    intros b1 b2.
+    destruct b1 eqn:B1.
+        - destruct b2 eqn: B2.
+            + simpl. reflexivity.
+            + simpl. reflexivity.
+        - destruct b2 eqn: B2.
+            + simpl. reflexivity.
+            + simpl. reflexivity.
+Qed.
+
+(** Exercise *)
+Theorem andb_true_elim2: forall b c : bool,
+    b && c = true -> c = true.
+Proof.
+    intros b c.
+    destruct b eqn:B.
+        - simpl. intros H. rewrite -> H. reflexivity.
+        - simpl. intros H.
+          destruct c eqn:C.
+            + reflexivity.
+            + rewrite H. reflexivity.
+Qed.
+
+(** Exercise *)
+Theorem zero_nbeq_plus_1 : forall n : nat,
+    (0 =? n + 1) = false.
+Proof.
+    intros [ | m].
+    - simpl. reflexivity.
+    - simpl. reflexivity.
+Qed.
