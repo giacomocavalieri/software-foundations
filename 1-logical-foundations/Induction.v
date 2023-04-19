@@ -580,27 +580,42 @@ Qed.
 Theorem leb_refl : forall n:nat,
   (n <=? n) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [ | m IHm ].
+  - reflexivity.
+  - simpl. rewrite IHm. reflexivity.
+Qed.
 
 Theorem zero_neqb_S : forall n:nat,
   0 =? (S n) = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. reflexivity.
+Qed.
 
 Theorem andb_false_r : forall b : bool,
   andb b false = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b. destruct b eqn:B. 
+  - reflexivity.
+  - reflexivity.
+Qed.
 
 Theorem S_neqb_0 : forall n:nat,
   (S n) =? 0 = false.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n.
+  reflexivity.
+Qed.
+
 
 Theorem mult_1_l : forall n:nat, 1 * n = n.
 Proof.
-  (* FILL IN HERE *) Admitted.
-
+  intros n.
+  simpl.
+  rewrite add_0_r.
+  reflexivity.
+Qed.
+  
+(* (b && c) || (!b || !c) = true *)
 Theorem all3_spec : forall b c : bool,
   orb
     (andb b c)
@@ -608,17 +623,35 @@ Theorem all3_spec : forall b c : bool,
          (negb c))
   = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros b c. destruct b eqn:B.
+  - simpl. destruct c eqn:C.
+    + reflexivity.
+    + reflexivity.
+  - reflexivity.
+Qed.
 
 Theorem mult_plus_distr_r : forall n m p : nat,
   (n + m) * p = (n * p) + (m * p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p. induction p as [ | p1 IH1 ].
+  - rewrite mul_0_r. rewrite mul_0_r. rewrite mul_0_r. reflexivity.
+  - rewrite <- mult_n_Sm. rewrite IH1.
+    rewrite <- mult_n_Sm. rewrite <- mult_n_Sm. rewrite <- add_assoc. rewrite <- add_assoc.
+    assert (H: m * p1 + (n + m) = n + (m * p1 + m)). {
+      rewrite add_comm. rewrite <- add_assoc.
+      assert(H0: m + m * p1 = m * p1 + m). { rewrite add_comm. reflexivity. }
+      rewrite <- H0. reflexivity.
+    }
+    rewrite H. reflexivity.
+Qed.
 
 Theorem mult_assoc : forall n m p : nat,
   n * (m * p) = (n * m) * p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p. induction n as [ | n1 IH1].
+  - reflexivity.
+  - simpl. rewrite IH1. rewrite mult_plus_distr_r. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (add_shuffle3')
@@ -635,8 +668,14 @@ Proof.
 Theorem add_shuffle3' : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n m p.
+  rewrite add_assoc.
+  rewrite add_assoc.
+  replace (n + m) with (m + n).
+  - reflexivity.
+  - rewrite add_comm. reflexivity.
+Qed.
+  (** [] *)
 
 (* ################################################################# *)
 (** * Nat to Bin and Back to Nat *)
