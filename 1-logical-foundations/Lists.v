@@ -1148,7 +1148,9 @@ Definition eqb_id (x1 x2 : id) :=
 (** **** Exercise: 1 star, standard (eqb_id_refl) *)
 Theorem eqb_id_refl : forall x, eqb_id x x = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros x. destruct x as [ n ].
+  simpl. rewrite eqb_refl. reflexivity.
+Qed.
 (** [] *)
 
 (** Now we define the type of partial maps: *)
@@ -1170,9 +1172,7 @@ Inductive partial_map : Type :=
     partial map by shadowing it with a new one (or simply adds a new
     entry if the given key is not already present). *)
 
-Definition update (d : partial_map)
-                  (x : id) (value : nat)
-                  : partial_map :=
+Definition update (d : partial_map) (x : id) (value : nat) : partial_map :=
   record x value d.
 
 (** Last, the [find] function searches a [partial_map] for a given
@@ -1194,7 +1194,9 @@ Theorem update_eq :
   forall (d : partial_map) (x : id) (v: nat),
     find x (update d x v) = Some v.
 Proof.
- (* FILL IN HERE *) Admitted.
+  intros map key val.
+  simpl. rewrite eqb_id_refl. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (update_neq) *)
@@ -1202,7 +1204,10 @@ Theorem update_neq :
   forall (d : partial_map) (x y : id) (o: nat),
     eqb_id x y = false -> find x (update d y o) = find x d.
 Proof.
- (* FILL IN HERE *) Admitted.
+  intros map key1 key2 value H.
+  simpl. rewrite H. reflexivity.
+Qed.
+
 (** [] *)
 End PartialMap.
 
@@ -1217,7 +1222,8 @@ Inductive baz : Type :=
 (** How _many_ elements does the type [baz] have? (Explain in words,
     in a comment.) *)
 
-(* FILL IN HERE *)
+(* It contains infinite elements as all its constructors recursivley need
+   a baz type. It would be impossible to eagerly build a value of type baz. *)
 
 (** [] *)
 
