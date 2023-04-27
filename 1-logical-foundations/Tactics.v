@@ -613,7 +613,14 @@ Proof.
 Theorem eqb_true : forall n m,
   n =? m = true -> n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [ | n1 IH ].
+  - intros m eq. destruct m as [ | m1 ].
+    + reflexivity.
+    + discriminate.
+  - intros m eq. destruct m as [ | m1 ].
+    + discriminate.
+    + f_equal. apply IH. simpl in eq. apply eq.
+Qed.  
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (eqb_true_informal)
@@ -636,7 +643,22 @@ Theorem plus_n_n_injective : forall n m,
   n + n = m + m ->
   n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [ | n1 IH ].
+  - intros m eq. destruct m as [ | m1 ].
+    + reflexivity.
+    + discriminate.
+  - intros m eq. destruct m as [ | m1 ].
+    + discriminate.
+    + f_equal.
+      apply IH.
+      simpl in eq.
+      injection eq.
+      intros eq1.
+      rewrite <- plus_n_Sm in eq1.
+      rewrite <- plus_n_Sm in eq1.
+      injection eq1.
+      intros eq2. apply eq2.
+Qed.
 (** [] *)
 
 (** The strategy of doing fewer [intros] before an [induction] to
@@ -743,7 +765,12 @@ Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
   length l = n ->
   nth_error l n = None.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n X l eq. generalize dependent n. induction l as [ | x xs IH ].
+  - reflexivity.
+  - intros n eq. simpl. destruct n as [ | n1 ].
+    + discriminate.
+    + apply IH. simpl in eq. injection eq as eq. apply eq.
+Qed.  
 (** [] *)
 
 (* ################################################################# *)
