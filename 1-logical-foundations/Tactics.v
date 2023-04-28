@@ -956,7 +956,14 @@ Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X Y l. induction l as [ | h t IH ].
+  - intros l1 l2 H. simpl in H. injection H as H1 H2. rewrite <- H1. reflexivity.
+  - destruct h as [ x y ]. simpl.
+    destruct (split t) as [ xs1 ys1 ].
+    intros l1 l2 H. injection H as Hl1 Hl2.
+    rewrite <- Hl1. rewrite <- Hl2. simpl.
+    f_equal. apply IH. reflexivity.
+Qed.
 (** [] *)
 
 (** The [eqn:] part of the [destruct] tactic is optional; although
@@ -1031,7 +1038,20 @@ Theorem bool_fn_applied_thrice :
   forall (f : bool -> bool) (b : bool),
   f (f (f b)) = f b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros f b.
+  destruct (f b) as [] eqn:H1.
+  - destruct (f true) as [] eqn:H2.
+    + apply H2.
+    + rewrite <- H1. f_equal. destruct b as [].
+      * rewrite H1 in H2. discriminate H2.
+      * reflexivity.
+  - destruct (f false) as [] eqn:H2.
+    + rewrite <- H1. f_equal. destruct b as [].
+      * reflexivity.
+      * rewrite H1 in H2. discriminate H2.
+    + apply H2.
+Qed.
+  
 (** [] *)
 
 (* ################################################################# *)
