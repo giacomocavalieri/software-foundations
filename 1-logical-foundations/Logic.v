@@ -148,7 +148,15 @@ Qed.
 Example and_exercise :
   forall n m : nat, n + m = 0 -> n = 0 /\ m = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H. split.
+  - destruct n as [ | n1 ].
+    + reflexivity.
+    + discriminate H.
+  - destruct m as [ | m1 ].
+    + reflexivity.
+    + rewrite add_comm in H. discriminate H.
+Qed. 
+
 (** [] *)
 
 (** So much for proving conjunctive statements.  To go in the other
@@ -226,7 +234,9 @@ Proof.
 Lemma proj2 : forall P Q : Prop,
   P /\ Q -> Q.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q [_ HQ].
+  apply HQ.
+Qed.
 (** [] *)
 
 (** Finally, we sometimes need to rearrange the order of conjunctions
@@ -253,7 +263,13 @@ Theorem and_assoc : forall P Q R : Prop,
   P /\ (Q /\ R) -> (P /\ Q) /\ R.
 Proof.
   intros P Q R [HP [HQ HR]].
-  (* FILL IN HERE *) Admitted.
+  split.
+  - split.
+    + apply HP.
+    + apply HQ.
+  - apply HR.
+Qed.
+
 (** [] *)
 
 (** By the way, the infix notation [/\] is actually just syntactic
@@ -317,14 +333,22 @@ Qed.
 Lemma mult_is_O :
   forall n m, n * m = 0 -> n = 0 \/ m = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H. destruct n as [ | n1 ].
+  - left. reflexivity.
+  - destruct m as [ | m1 ].
+    + right. reflexivity.
+    + discriminate H.
+Qed.    
 (** [] *)
 
 (** **** Exercise: 1 star, standard (or_commut) *)
 Theorem or_commut : forall P Q : Prop,
   P \/ Q  -> Q \/ P.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q [ HP | HQ ].
+  - right. apply HP.
+  - left. apply HQ.
+Qed.  
 (** [] *)
 
 (* ================================================================= *)
@@ -383,7 +407,12 @@ Proof.
 Theorem not_implies_our_not : forall (P:Prop),
   ~ P -> (forall (Q:Prop), P -> Q).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P HNP Q HP.
+  unfold not in HNP.
+  apply HNP in HP.
+  destruct HP.
+Qed.
+
 (** [] *)
 
 (** Inequality is a frequent enough form of negated statement
@@ -452,14 +481,19 @@ Definition manual_grade_for_double_neg_inf : option (nat*string) := None.
 Theorem contrapositive : forall (P Q : Prop),
   (P -> Q) -> (~Q -> ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros P Q H HNQ HP.
+  apply HNQ. apply H. apply HP.
+Qed.
+  
 (** [] *)
 
 (** **** Exercise: 1 star, standard (not_both_true_and_false) *)
 Theorem not_both_true_and_false : forall P : Prop,
   ~ (P /\ ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros P [ HP HNP ] .
+  apply HNP. apply HP.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, advanced (informal_not_PNP)
@@ -467,7 +501,15 @@ Proof.
     Write an informal proof (in English) of the proposition [forall P
     : Prop, ~(P /\ ~P)]. *)
 
-(* FILL IN HERE *)
+(*
+  ~(P /\ ~P)
+  Supponiamo per assurdo che (P /\ ~P) (H) sia vera.
+  Dunque, per (H) anche le singole proposizioni P (H1) e ~P (H2)
+  sono vere.
+  È possibile riformulare (H2) come P -> False (H2).
+  Dunque, poiché sappiamo che P è vera per (H1) possiamo dedurre il falso.
+  Ciò è assurdo. QED.
+*)
 
 (* Do not modify the following line: *)
 Definition manual_grade_for_informal_not_PNP : option (nat*string) := None.
@@ -484,7 +526,11 @@ Definition manual_grade_for_informal_not_PNP : option (nat*string) := None.
 Theorem de_morgan_not_or : forall (P Q : Prop),
     ~ (P \/ Q) -> ~P /\ ~Q.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros P Q H. split.
+  - intros HP. apply H. left. apply HP.
+  - intros HQ. apply H. right. apply HQ. 
+Qed.
+
 (** [] *)
 
 (** Since inequality involves a negation, it also requires a little
@@ -635,19 +681,38 @@ Qed.
 Theorem iff_refl : forall P : Prop,
   P <-> P.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P. split.
+  - intros HP. apply HP.
+  - intros HP. apply HP.
+Qed.
 
 Theorem iff_trans : forall P Q R : Prop,
   (P <-> Q) -> (Q <-> R) -> (P <-> R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q R HPQ HQR. split.
+  - intros HP. apply HQR. apply HPQ. apply HP.
+  - intros HR. apply HPQ. apply HQR. apply HR.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard (or_distributes_over_and) *)
 Theorem or_distributes_over_and : forall P Q R : Prop,
   P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q R. split.
+  - intros [ HP | [ HQ HR ] ].
+    + split.
+      * left. apply HP.
+      * left. apply HP.
+    + split.
+      * right. apply HQ.
+      * right. apply HR.
+  - intros [ [ HP | HQ ] [ HP1 | HR ] ].
+    + left. apply HP.
+    + left. apply HP.
+    + left. apply HP1.
+    + right. split. apply HQ. apply HR.
+Qed. 
 (** [] *)
 
 (* ================================================================= *)
@@ -757,7 +822,10 @@ Proof.
 Theorem dist_not_exists : forall (X:Type) (P : X -> Prop),
   (forall x, P x) -> ~ (exists x, ~ P x).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X P HP H.
+  destruct H as [ x HPX ].
+  apply HPX. apply HP.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (dist_exists_or)
@@ -768,17 +836,37 @@ Proof.
 Theorem dist_exists_or : forall (X:Type) (P Q : X -> Prop),
   (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
 Proof.
-   (* FILL IN HERE *) Admitted.
+  intros X P Q. split.
+  - intros [ x HX ]. destruct HX as [ HP | HQ ].
+    + left. exists x. apply HP.
+    + right. exists x. apply HQ.
+  - intros [ [ p HP ] | [ q HQ ] ].
+    + exists p. left. apply HP.
+    + exists q. right. apply HQ.
+Qed.   
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (leb_plus_exists) *)
 Theorem leb_plus_exists : forall n m, n <=? m = true -> exists x, m = n+x.
 Proof.
-(* FILL IN HERE *) Admitted.
+  intros n. induction n as [ | n1 IH ].
+  - intros m H. exists m. reflexivity.
+  - intros m. destruct m as [ | m1 ].
+    + simpl. intros H. discriminate H.
+    + simpl. intros H. apply IH in H as [ x HX ].
+      exists x. f_equal. apply HX.
+Qed. 
 
 Theorem plus_exists_leb : forall n m, (exists x, m = n+x) -> n <=? m = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [ | n1 IH ].
+  - reflexivity.
+  - intros m [ x HX ]. destruct m as [ | m1 ].
+    + discriminate HX.
+    + simpl. apply IH. exists x.
+      simpl in HX. injection HX as HX. apply HX.
+Qed.   
+
 
 (** [] *)
 
