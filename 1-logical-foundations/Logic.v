@@ -952,15 +952,40 @@ Theorem In_map_iff :
          exists x, f x = y /\ In x l.
 Proof.
   intros A B f l y. split.
-  (* FILL IN HERE *) Admitted.
+  - induction l as [ | h t IH ].
+    + intros [].
+    + simpl. intros [ H | H ].
+      * exists h. split.
+        ** apply H.
+        ** left. reflexivity.
+      * apply IH in H as [ x [ H1 H2 ] ].
+        exists x. split.
+        ** apply H1.
+        ** right. apply H2.
+  - intros [ x [ H1 H2 ] ].
+    rewrite <- H1.
+    apply In_map. apply H2.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (In_app_iff) *)
 Theorem In_app_iff : forall A l l' (a:A),
   In a (l++l') <-> In a l \/ In a l'.
 Proof.
-  intros A l. induction l as [|a' l' IH].
-  (* FILL IN HERE *) Admitted.
+  intros A l. induction l as [ | x xs IH ].
+  - intros l' a. simpl. split.
+    + intros H. right. apply H.
+    + intros [ [] | H ]. apply H.
+  - intros l' a. simpl. split.
+    + intros [ H | H ].
+      * left. left. apply H.
+      * rewrite  <- or_assoc. right. apply IH. apply H.
+    + intros [ [ H | H ] | H ].
+      * left. apply H.
+      * right. apply IH. left. apply H.
+      * right. apply IH. right. apply H.
+Qed.    
+  
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, especially useful (All)
@@ -975,15 +1000,29 @@ Proof.
     lemma below.  (Of course, your definition should _not_ just
     restate the left-hand side of [All_In].) *)
 
-Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop :=
+  match l with
+  | [] => True
+  | t :: ts => P t /\ All P ts
+  end.
 
 Theorem All_In :
   forall T (P : T -> Prop) (l : list T),
     (forall x, In x l -> P x) <->
     All P l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros T P l. induction l as [ | x xs IH ].
+  - split.
+    * simpl. intros H. apply I.
+    * simpl. intros H1 H2 [].
+  - split.
+    * simpl. intros H. split.
+      + apply H. left. reflexivity.
+      + apply IH. intros x0 H0. apply H. right. apply H0.
+    * simpl. intros [ H0 H1 ] x0 [ H | H ].
+      + rewrite <- H. apply H0.
+      + rewrite <- IH in H1. apply H1. apply H.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (combine_odd_even)
@@ -994,8 +1033,11 @@ Proof.
     equivalent to [Podd n] when [n] is [odd] and equivalent to [Peven n]
     otherwise. *)
 
-Definition combine_odd_even (Podd Peven : nat -> Prop) : nat -> Prop
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition combine_odd_even (Podd Peven : nat -> Prop) : nat -> Prop := 
+  fun n => match odd n with
+  | true => Podd n
+  | false => Peven n 
+  end.
 
 (** To test your definition, prove the following facts: *)
 
@@ -1005,7 +1047,12 @@ Theorem combine_odd_even_intro :
     (odd n = false -> Peven n) ->
     combine_odd_even Podd Peven n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros Podd Peven n Heven Hodd.
+  unfold combine_odd_even.
+  destruct (odd n).
+    - apply Heven. reflexivity.
+    - apply Hodd. reflexivity.
+Qed.
 
 Theorem combine_odd_even_elim_odd :
   forall (Podd Peven : nat -> Prop) (n : nat),
@@ -1013,7 +1060,11 @@ Theorem combine_odd_even_elim_odd :
     odd n = true ->
     Podd n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold combine_odd_even.
+  intros Podd Peven n H Hodd. destruct (odd n).
+    - apply H.
+    - discriminate Hodd.
+Qed.    
 
 Theorem combine_odd_even_elim_even :
   forall (Podd Peven : nat -> Prop) (n : nat),
@@ -1021,7 +1072,11 @@ Theorem combine_odd_even_elim_even :
     odd n = false ->
     Peven n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold combine_odd_even.
+  intros Podd Peven n H Heven. destruct (odd n).
+    - discriminate Heven.
+    - apply H.
+Qed. 
 (** [] *)
 
 (* ################################################################# *)
